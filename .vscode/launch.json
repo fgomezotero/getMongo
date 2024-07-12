@@ -1,0 +1,38 @@
+{
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Python Debugger: Current File",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "getMongo.py",
+      "args": [
+        "-h",
+        "localhost",
+        "-p",
+        "27017",
+        "-d",
+        "trazabilidad",
+        "-c",
+        "processed-data",
+        "-q",
+        "{\"tipoTraza\": \"CABEZAL\"}",
+        "-j",
+        "{}",
+        "-l",
+        "3",
+        "-u",
+        "user",
+        "-s",
+        "pass",
+        "-a",
+        "admin"
+      ],
+      "console": "integratedTerminal",
+      "python": "/home/frank/miniconda3/envs/nifi/bin/python3"
+    }
+  ]
+}
