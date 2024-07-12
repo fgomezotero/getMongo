@@ -42,7 +42,7 @@ We need an alternative way to replace the use of getMongo Nifi processor. This p
 
 ## Authors
 
-Franklin Gómez - gomezotero@gmail.com
+Franklin Gómez - fgomezotero@gmail.com
 
 ## License
 
