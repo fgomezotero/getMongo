@@ -19,7 +19,7 @@
         "-c",
         "processed-data",
         "-q",
-        "{\"tipoTraza\": \"CABEZAL\"}",
+        "{\"$and\":[{\"_id\":{\"$gt\":\"658485920f2f5f4f9d0dd674\"}}]}",
         "-j",
         "{}",
         "-l",
