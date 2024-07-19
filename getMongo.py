@@ -89,8 +89,14 @@ def get_mongo_data(
     try:
         # Connect to the MongoDB server
         if username and password:
-            conn = pymongo.MongoClient(
-                f"mongodb://{username}:{password}@{host}:{port}/{authentication_database}"
+            conn = (
+                pymongo.MongoClient(
+                    f"mongodb://{username}:{password}@{host}:{port}/{authentication_database}"
+                )
+                if authentication_database
+                else pymongo.MongoClient(
+                    f"mongodb://{username}:{password}@{host}:{port}"
+                )
             )
         else:
             conn = pymongo.MongoClient(f"mongodb://{host}:{port}")
