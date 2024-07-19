@@ -1,7 +1,7 @@
 # Implement an script getMongo to replace Nifi processor GetMongo and load query in json format from file
 import pymongo, json
 from bson import ObjectId
-import re
+import re, sys
 
 
 def convert_query_to_objectid(query_dict):
@@ -25,6 +25,7 @@ def convert_query_to_objectid(query_dict):
         return [convert_query_to_objectid(item) for item in query_dict]
     else:
         return query_dict
+
 
 def get_mongo_data(
     uri,
@@ -50,7 +51,7 @@ def get_mongo_data(
     try:
         # Connect to the MongoDB server
         conn = pymongo.MongoClient(uri)
-list
+
         # Get the database and collection
         db = conn[database]
         coll = db[collection]
@@ -72,8 +73,18 @@ list
         if limit > 0:
             cursor = cursor.limit(limit)
 
-        # Convert the cursor to a list of dictionaries
-        result = list(cursor)
+        # Convert the cursor to a list, removing 'u' prefix for each value (using iteritems)
+        result = [
+            dict(
+                {
+                    k.encode("utf-8") if isinstance(k, unicode) else k: (
+                        v.encode("utf-8") if isinstance(v, unicode) else v
+                    )
+                    for k, v in doc.iteritems()
+                }
+            )
+            for doc in cursor
+        ]
 
         # Print the result
         print(result)
@@ -94,11 +105,18 @@ list
 
 # define the main call
 if __name__ == "__main__":
+    uri = sys.argv[1]
+    database = sys.argv[2]
+    collection = sys.argv[3]
+    query_file = sys.argv[4]
+    projection = None if sys.argv[5] == "None" else sys.argv[5]
+    limit = int(sys.argv[6])
+
     get_mongo_data(
-        uri="mongodb://usr_prep_lectura:dkRp4A34@10.255.19.79:27012",
-        database="traza_prep",
-        collection="processed-data",
-        query_file="query.json",
-        projection="{}",
-        limit=10,
+        uri=uri,
+        database=database,
+        collection=collection,
+        query_file=query_file,
+        projection=projection,
+        limit=limit,
     )
