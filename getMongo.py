@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 # Implement an script getMongo to replace Nifi processor GetMongo and load query in json format from file
 import pymongo, click, json
 from bson import ObjectId
