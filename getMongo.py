@@ -1,5 +1,5 @@
 # Implement an script getMongo to replace Nifi processor GetMongo and load query in json format from file
-import pymongo, click, json
+import pymongo, json
 from bson import ObjectId
 import re
 
@@ -26,34 +26,14 @@ def convert_query_to_objectid(query_dict):
     else:
         return query_dict
 
-
-@click.command
-@click.option("--uri", "-u", help="MongoDB URI - Connection String")
-@click.option("--database", "-d", help="MongoDB database")
-@click.option("--collection", "-c", help="MongoDB collection")
-@click.option(
-    "--query_file", "-q", type=click.Path(exists=True), help="MongoDB query file path"
-)
-@click.option(
-    "--projection",
-    "-j",
-    help="MongoDB projection, '{\"key\": int}' int value is 1 for inclusion, 0 for exclusion",
-)
-@click.option(
-    "--limit",
-    "-l",
-    default=0,
-    type=int,
-    help="Limit the number of results. Defaults to 0",
-)
 def get_mongo_data(
-    uri: str,
-    database: str,
-    collection: str,
-    query_file: str,
-    projection: dict[str:int],
-    limit: int = 0,
-) -> list:
+    uri,
+    database,
+    collection,
+    query_file,
+    projection=None,
+    limit=0,
+):
     """Ejecuta consultas sobre instancias de MongoDB
 
     Args:
@@ -70,7 +50,7 @@ def get_mongo_data(
     try:
         # Connect to the MongoDB server
         conn = pymongo.MongoClient(uri)
-
+list
         # Get the database and collection
         db = conn[database]
         coll = db[collection]
@@ -96,16 +76,16 @@ def get_mongo_data(
         result = list(cursor)
 
         # Print the result
-        click.echo(result)
+        print(result)
 
     except pymongo.errors.ConnectionFailure as e:
-        raise ConnectionError(f"Connection to MongoDB server failed: {e}") from e
+        raise ConnectionError("Connection to MongoDB server failed")
     except pymongo.errors.PyMongoError as e:
-        raise Exception(f"An error occurred during MongoDB operation: {e}") from e
+        raise Exception("An error occurred during MongoDB operation")
     except json.decoder.JSONDecodeError as e:
         raise Exception(
             "Invalid JSON input: Check the query file format or the projection parameters must be enclosed in simple quotes. Example: '{\"...\"}'"
-        ) from e
+        )
     finally:
         # Ensure connection is closed even on errors
         if conn:
@@ -114,5 +94,11 @@ def get_mongo_data(
 
 # define the main call
 if __name__ == "__main__":
-    # Call to the main function
-    get_mongo_data()
+    get_mongo_data(
+        uri="mongodb://usr_prep_lectura:dkRp4A34@10.255.19.79:27012",
+        database="traza_prep",
+        collection="processed-data",
+        query_file="query.json",
+        projection="{}",
+        limit=10,
+    )
