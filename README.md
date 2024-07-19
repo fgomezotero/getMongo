@@ -39,6 +39,7 @@ We need an alternative way to replace the use of getMongo Nifi processor. This p
     ```bash
     python getMongo.py --help or ./getMongo.py --help
     ```
+> :warning: **Warning**:  Check the correct format of the query file in json format
 
 ## Authors
 

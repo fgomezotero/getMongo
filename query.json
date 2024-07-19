@@ -1,0 +1,25 @@
+{
+  "$and": [
+    {
+      "_id": {
+        "$gte": "ObjectId('658485920f2f5f4f9d0dd674')",
+        "$lte": "ObjectId('658485920f2f5f4f9d0dd679')"
+      }
+    },
+    {
+      "$or": [
+        {
+          "isMigrated": false
+        },
+        {
+          "isMigrated": {
+            "$exists": false
+          }
+        },
+        {
+          "isMigrated": null
+        }
+      ]
+    }
+  ]
+}
