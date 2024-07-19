@@ -18,7 +18,7 @@ def convert_query_to_objectid(query_dict):
     """
     if isinstance(query_dict, str):
         parsing = re.match(r"ObjectId\('(.*?)'\)", query_dict)
-        return ObjectId(parsing.group(1)) if parsing else value
+        return ObjectId(parsing.group(1)) if parsing else query_dict
     elif isinstance(query_dict, dict):
         return {
             key: convert_query_to_objectid(value) for key, value in query_dict.items()
@@ -30,8 +30,7 @@ def convert_query_to_objectid(query_dict):
 
 
 @click.command
-@click.option("--host", "-h", help="MongoDB host")
-@click.option("--port", "-p", default=27017, type=int, help="MongoDB port")
+@click.option("--uri", "-u", help="MongoDB URI - Connection String")
 @click.option("--database", "-d", help="MongoDB database")
 @click.option("--collection", "-c", help="MongoDB collection")
 @click.option(
@@ -49,57 +48,30 @@ def convert_query_to_objectid(query_dict):
     type=int,
     help="Limit the number of results. Defaults to 0",
 )
-@click.option("--username", "-u", help="MongoDB username")
-@click.option("--password", "-s", help="MongoDB password")
-@click.option(
-    "--authentication_database",
-    "-a",
-    help="MongoDB authentication database",
-)
-# @click.option("--verbose", "-v", is_flag=True, help="Verbose output")
 def get_mongo_data(
-    host: str,
-    port: int,
+    uri: str,
     database: str,
     collection: str,
     query_file: str,
     projection: dict[str:int],
     limit: int = 0,
-    username: str = None,
-    password: str = None,
-    authentication_database: str = None,
 ) -> list:
     """Ejecuta consultas sobre instancias de MongoDB
 
     Args:
-        host (str): MongoDB host.
-        port (int): MongoDB post.
+        uri (str): MongoDB URI - Connection String.
         database (str): MongoDB database.
         collection (str): MongoDB collection.
         query_file (str): MongoDB query file path.
         projection (dict[str:int]): MongoDB projection, \'{\"key\": int}\' int value is 1 for inclusion, 0 for exclusion.
         limit (int, optional): Limit the number of results. Defaults to 0.
-        username (str, optional): MongoDB username. Defaults to None.
-        password (str, optional): MongoDB password. Defaults to None.
-        authentication_database (str, optional): MongoDB authentication database. Defaults to None.
 
     Returns:
         list: Diccionario de resultados de la consulta
     """
     try:
         # Connect to the MongoDB server
-        if username and password:
-            conn = (
-                pymongo.MongoClient(
-                    f"mongodb://{username}:{password}@{host}:{port}/{authentication_database}"
-                )
-                if authentication_database
-                else pymongo.MongoClient(
-                    f"mongodb://{username}:{password}@{host}:{port}"
-                )
-            )
-        else:
-            conn = pymongo.MongoClient(f"mongodb://{host}:{port}")
+        conn = pymongo.MongoClient(uri)
 
         # Get the database and collection
         db = conn[database]
