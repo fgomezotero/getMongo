@@ -4,6 +4,26 @@ from bson import ObjectId
 import re, sys
 
 
+def remove_u_prefix(data):
+  """
+  Removes the 'u' prefix from both keys and values in a dictionary recursively (Python 2.7).
+
+  Args:
+      data: A dictionary or a list of dictionaries.
+
+  Returns:
+      A new dictionary/list with 'u' prefixes removed.
+  """
+  if isinstance(data, dict):
+    return {k.encode('utf-8'): remove_u_prefix(v) for k, v in data.items()}
+  elif isinstance(data, list):
+    return [remove_u_prefix(item) for item in data]
+  elif isinstance(data, unicode):  # Check for unicode strings (Python 2.7)
+    return data.encode('utf-8')  # Encode and remove 'u' prefix
+  else:
+    return data  # Return non-dict/list/unicode data types unchanged
+
+
 def convert_query_to_objectid(query_dict):
     """
     Converts nested ObjectIds in a query dictionary to bson.ObjectId instances using regex.
@@ -15,7 +35,7 @@ def convert_query_to_objectid(query_dict):
         A dictionary with converted ObjectId instances.
     """
     if isinstance(query_dict, str):
-        parsing = re.match(r"ObjectId\('(.*?)'\)", query_dict)
+        parsing = re.match(r"ObjectId\((.*?)\)", query_dict)
         return ObjectId(parsing.group(1)) if parsing else query_dict
     elif isinstance(query_dict, dict):
         return {
@@ -58,12 +78,13 @@ def get_mongo_data(
 
         # Read the query from the JSON file
         with open(query_file, "r") as f:
-            query_string = json.load(f)
+            query_string = json.load(f, encoding='utf-8')
+
+        # Removing 'u' prefix for each key and value
+        query_string = remove_u_prefix(query_string)
 
         # Convert string to dictionary and handle ObjectIds
         query = convert_query_to_objectid(query_string)
-
-        # click.echo(query)
 
         projection = json.loads(projection) if projection else None
         # Execute the query
@@ -74,23 +95,16 @@ def get_mongo_data(
             cursor = cursor.limit(limit)
 
         # Convert the cursor to a list, removing 'u' prefix for each value (using iteritems)
-        result = [
-            dict(
-                {
-                    k.encode("utf-8") if isinstance(k, unicode) else k: (
-                        v.encode("utf-8") if isinstance(v, unicode) else v
-                    )
-                    for k, v in doc.iteritems()
-                }
-            )
-            for doc in cursor
-        ]
+        result = list(cursor)
+
+        # Removing 'u' prefix for each key and value
+        result = remove_u_prefix(result)
 
         # Print the result
         print(result)
 
     except pymongo.errors.ConnectionFailure as e:
-        raise ConnectionError("Connection to MongoDB server failed")
+        raise Exception("Connection to MongoDB server failed")
     except pymongo.errors.PyMongoError as e:
         raise Exception("An error occurred during MongoDB operation")
     except json.decoder.JSONDecodeError as e:

@@ -2,8 +2,8 @@
   "$and": [
     {
       "_id": {
-        "$gte": "ObjectId('658485920f2f5f4f9d0dd674')",
-        "$lte": "ObjectId('658485920f2f5f4f9d0dd679')"
+        "$gte": "ObjectId(658485920f2f5f4f9d0dd674)",
+        "$lte": "ObjectId(658485920f2f5f4f9d0dd679)"
       }
     },
     {
